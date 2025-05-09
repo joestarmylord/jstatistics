@@ -1,49 +1,31 @@
-import javax.swing.JOptionPane;
-import java.util.Random;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.swing.JOptionPane;
 
 public class App {
 
     public static void main(String[] args) {
-        Random random = new Random();
-        int[] contagem = new int[6]; // Para contar quantas vezes saiu cada número (1 a 6)
-        StringBuilder historico = new StringBuilder(); // Para guardar os resultados e salvar no .txt
-        int resposta;
+        JOptionPane.showMessageDialog(null, "Alô, Jardim!", "Jardim", JOptionPane.OK_OPTION);
 
-        do {
-            int resultado = random.nextInt(6) + 1;
-            contagem[resultado - 1]++; // Aumenta a contagem do número sorteado
-            historico.append("Resultado: ").append(resultado).append("\n"); // Guarda o resultado
+        String nome = JOptionPane.showInputDialog(null, "Preencha o campo abaixo com seu nome completo.", "Jardim", JOptionPane.OK_OPTION);
+        String endereco = JOptionPane.showInputDialog(null, "Preencha o campo abaixo com seu endereço (letras e números).", "Jardim", JOptionPane.OK_OPTION);
+        String telefone = JOptionPane.showInputDialog(null, "Preencha o campo abaixo com seu número de telefone (apenas números).", "Jardim", JOptionPane.OK_OPTION);
 
-            JOptionPane.showMessageDialog(null, "Você lançou o dado e tirou: " + resultado,
-                    "Resultado do Dado", JOptionPane.INFORMATION_MESSAGE);
+        double largura = Double.parseDouble(JOptionPane.showInputDialog(null, "Informe a largura do jardim em metros:", "Jardim", JOptionPane.OK_OPTION));
+        double comprimento = Double.parseDouble(JOptionPane.showInputDialog(null, "Informe o comprimento do jardim em metros:", "Jardim", JOptionPane.OK_OPTION));
+        double area = largura * comprimento;
 
-            resposta = JOptionPane.showConfirmDialog(null, "Deseja lançar o dado novamente?",
-                    "Lançar novamente", JOptionPane.YES_NO_OPTION);
+        JOptionPane.showMessageDialog(null, "Dados salvos!", "Jardim", JOptionPane.OK_OPTION);
 
-        } while (resposta == JOptionPane.YES_OPTION);
-
-        // Mostra estatísticas
-        StringBuilder estatisticas = new StringBuilder("Estatísticas dos lançamentos:\n");
-        for (int i = 0; i < 6; i++) {
-            estatisticas.append("Número ").append(i + 1).append(": ").append(contagem[i]).append(" vezes\n");
-        }
-
-        JOptionPane.showMessageDialog(null, estatisticas.toString());
-
-        // Salva no arquivo .txt
         try {
-            FileWriter writer = new FileWriter("historico.txt");
-            writer.write("Histórico de lançamentos:\n");
-            writer.write(historico.toString());
+            FileWriter writer = new FileWriter("dadoscliente.txt");
+            writer.write("Nome, Endereço, Telefone, Área do Jardim (m²)\n");
+            writer.write(nome + ", " + endereco + ", " + telefone + ", " + area + "\n");
             writer.close();
-            FileWriter writer2 = new FileWriter("estatistica.txt");
-            writer2.write("\n" + estatisticas.toString());
-            writer2.close();
-            JOptionPane.showMessageDialog(null, "Os resultados foram salvos em arquivos txt. Até a próxima!");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao salvar o arquivo!");
+            JOptionPane.showMessageDialog(null, "Erro ao salvar o arquivo", "Jardim", JOptionPane.OK_OPTION);
         }
     }
 }
+
