@@ -167,6 +167,68 @@ public class App {
                 relatorio.write("Jardins com mais de 100 m²: " + maiores100 + "\n");
 
                 relatorio.close();
+            // ===== NOVO RELATÓRIO AVANÇADO =====
+            try {
+                BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream("dadoscliente.txt"), "UTF-8"));
+                List<Double> listaAreas = new ArrayList<>();
+                List<Integer> qtdeServicos = new ArrayList<>();
+
+                reader2.readLine(); // pula cabeçalho
+                while ((linha = reader2.readLine()) != null) {
+                    String[] campos = linha.split(",");
+                    if (campos.length >= 6) {
+                        try {
+                            double areaLida = Double.parseDouble(campos[3].trim());
+                            listaAreas.add(areaLida);
+
+                            String servicosStr = campos[5];
+                            int qtde = servicosStr.split("\\|").length;
+                            qtdeServicos.add(qtde);
+                        } catch (Exception ignored) {}
+                    }
+                }
+                reader2.close();
+
+                // Moda das áreas
+                double moda = 0;
+                int maxFrequencia = 0;
+                for (double a : listaAreas) {
+                    int freq = 0;
+                    for (double b : listaAreas) {
+                        if (Double.compare(a, b) == 0) freq++;
+                    }
+                    if (freq > maxFrequencia) {
+                        moda = a;
+                        maxFrequencia = freq;
+                    }
+                }
+
+                // Ordena quantidades de serviços
+                qtdeServicos.sort(Integer::compareTo);
+
+                // Salvar no final do relatorio_jardins.txt
+                OutputStreamWriter writerAvancado = new OutputStreamWriter(new FileOutputStream("relatorio_jardins.txt", true), "UTF-8");
+
+                writerAvancado.write("\nRELATÓRIO AVANÇADO - ÁREAS E SERVIÇOS\n");
+                writerAvancado.write("--------------------------------------\n");
+
+                writerAvancado.write("Áreas registradas:\n");
+                for (double a : listaAreas) {
+                    writerAvancado.write(String.format("• %.2f m²\n", a));
+                }
+
+                writerAvancado.write("\nModa das Áreas (valor mais frequente): " + String.format("%.2f", moda) + " m²\n");
+
+                writerAvancado.write("\nQuantidade de serviços contratados por cliente (ordenado):\n");
+                for (int q : qtdeServicos) {
+                    writerAvancado.write("• " + q + " serviço(s)\n");
+                }
+
+                writerAvancado.close();
+
+            } catch (IOException e) {
+                // silencioso, somente relatório interno
+            }
 
             } catch (IOException ignored) {}
 
