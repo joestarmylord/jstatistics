@@ -107,7 +107,6 @@ public class App {
 
             exibirDadosCliente(nome, endereco, telefone, area, classificacao, servicos, desconto);
 
-            // Salvar dados
             File arquivo = new File("dadoscliente.txt");
             boolean novo = !arquivo.exists();
             FileOutputStream fos = new FileOutputStream(arquivo, true);
@@ -121,7 +120,6 @@ public class App {
             writer.write(nome + ", " + endereco + ", " + telefone + ", " + area + ", " + classificacao + ", " + String.join(" | ", servicos) + ", " + desconto + "%\n");
             writer.close();
 
-            // Relatório interno
             gerarRelatorioInterno();
             gerarRelatorioAvancado();
 
@@ -132,7 +130,6 @@ public class App {
         }
     }
 
-    // === FUNÇÕES UTILITÁRIAS ===
 
     public static double calcularArea(double largura, double comprimento) {
         return largura * comprimento;
@@ -166,7 +163,7 @@ public class App {
             int totalJardins = 0, grandes = 0, maiores100 = 0;
             double soma = 0;
 
-            reader.readLine(); // pula cabeçalho
+            reader.readLine(); 
             while ((linha = reader.readLine()) != null) {
                 String[] campos = linha.split(",");
                 if (campos.length >= 6) {
@@ -201,7 +198,7 @@ public class App {
             List<Double> listaAreas = new ArrayList<>();
             List<Integer> qtdeServicos = new ArrayList<>();
 
-            reader.readLine(); // pula cabeçalho
+            reader.readLine(); 
             String linha;
             while ((linha = reader.readLine()) != null) {
                 String[] campos = linha.split(",");
@@ -217,7 +214,6 @@ public class App {
             }
             reader.close();
 
-            // Moda
             double moda = 0;
             int maxFrequencia = 0;
             for (double a : listaAreas) {
