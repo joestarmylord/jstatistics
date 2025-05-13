@@ -57,7 +57,7 @@ public class App {
                 }
             }
 
-            double area = largura * comprimento;
+            double area = calcularArea(largura, comprimento);
             String classificacao = (area >= 50) ? "Grande" : "Pequeno";
 
             List<String> servicos = new ArrayList<>();
@@ -105,137 +105,149 @@ public class App {
             int qtd = servicos.size();
             int desconto = (qtd >= 3) ? 20 : (qtd == 2) ? 10 : 0;
 
+            exibirDadosCliente(nome, endereco, telefone, area, classificacao, servicos, desconto);
+
+            // Salvar dados
             File arquivo = new File("dadoscliente.txt");
             boolean novo = !arquivo.exists();
             FileOutputStream fos = new FileOutputStream(arquivo, true);
-
             if (novo) {
-                fos.write(0xEF); fos.write(0xBB); fos.write(0xBF); 
+                fos.write(0xEF); fos.write(0xBB); fos.write(0xBF);
             }
-
             OutputStreamWriter writer = new OutputStreamWriter(fos, "UTF-8");
-
             if (novo) {
                 writer.write("Nome, Endereço, Telefone, Área (m²), Tamanho, Serviços, Desconto (%)\n");
             }
-
             writer.write(nome + ", " + endereco + ", " + telefone + ", " + area + ", " + classificacao + ", " + String.join(" | ", servicos) + ", " + desconto + "%\n");
             writer.close();
 
-            JOptionPane.showMessageDialog(null,
-                    "Dados salvos com sucesso!\nServiços contratados: " + qtd + "\nDesconto aplicado: " + desconto + "%",
-                    "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
-
-            try {
-                File origem = new File("dadoscliente.txt");
-                File destino = new File("relatorio_jardins.txt");
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(origem), "UTF-8"));
-                OutputStreamWriter relatorio = new OutputStreamWriter(new FileOutputStream(destino, false), "UTF-8");
-
-                String linha;
-                int totalJardins = 0;
-                int grandes = 0;
-                int maiores100 = 0;
-                double soma = 0;
-
-                reader.readLine();
-
-                while ((linha = reader.readLine()) != null) {
-                    String[] campos = linha.split(",");
-                    if (campos.length >= 6) {
-                        try {
-                            double areaLida = Double.parseDouble(campos[3].trim());
-                            String tamanho = campos[4].trim();
-                            soma += areaLida;
-                            totalJardins++;
-                            if (tamanho.equalsIgnoreCase("Grande")) grandes++;
-                            if (areaLida > 100) maiores100++;
-                        } catch (Exception ignored) {}
-                    }
-                }
-
-                reader.close();
-
-                double media = (totalJardins > 0) ? soma / totalJardins : 0;
-
-                relatorio.write("RELATÓRIO INTERNO DOS JARDINS\n");
-                relatorio.write("-------------------------------\n");
-                relatorio.write("Total de Jardins: " + totalJardins + "\n");
-                relatorio.write("Média de Área: " + String.format("%.2f", media) + " m²\n");
-                relatorio.write("Jardins Grandes: " + grandes + "\n");
-                relatorio.write("Jardins com mais de 100 m²: " + maiores100 + "\n");
-
-                relatorio.close();
-            // ===== NOVO RELATÓRIO AVANÇADO =====
-            try {
-                BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream("dadoscliente.txt"), "UTF-8"));
-                List<Double> listaAreas = new ArrayList<>();
-                List<Integer> qtdeServicos = new ArrayList<>();
-
-                reader2.readLine(); // pula cabeçalho
-                while ((linha = reader2.readLine()) != null) {
-                    String[] campos = linha.split(",");
-                    if (campos.length >= 6) {
-                        try {
-                            double areaLida = Double.parseDouble(campos[3].trim());
-                            listaAreas.add(areaLida);
-
-                            String servicosStr = campos[5];
-                            int qtde = servicosStr.split("\\|").length;
-                            qtdeServicos.add(qtde);
-                        } catch (Exception ignored) {}
-                    }
-                }
-                reader2.close();
-
-                // Moda das áreas
-                double moda = 0;
-                int maxFrequencia = 0;
-                for (double a : listaAreas) {
-                    int freq = 0;
-                    for (double b : listaAreas) {
-                        if (Double.compare(a, b) == 0) freq++;
-                    }
-                    if (freq > maxFrequencia) {
-                        moda = a;
-                        maxFrequencia = freq;
-                    }
-                }
-
-                // Ordena quantidades de serviços
-                qtdeServicos.sort(Integer::compareTo);
-
-                // Salvar no final do relatorio_jardins.txt
-                OutputStreamWriter writerAvancado = new OutputStreamWriter(new FileOutputStream("relatorio_jardins.txt", true), "UTF-8");
-
-                writerAvancado.write("\nRELATÓRIO AVANÇADO - ÁREAS E SERVIÇOS\n");
-                writerAvancado.write("--------------------------------------\n");
-
-                writerAvancado.write("Áreas registradas:\n");
-                for (double a : listaAreas) {
-                    writerAvancado.write(String.format("• %.2f m²\n", a));
-                }
-
-                writerAvancado.write("\nModa das Áreas (valor mais frequente): " + String.format("%.2f", moda) + " m²\n");
-
-                writerAvancado.write("\nQuantidade de serviços contratados por cliente (ordenado):\n");
-                for (int q : qtdeServicos) {
-                    writerAvancado.write("• " + q + " serviço(s)\n");
-                }
-
-                writerAvancado.close();
-
-            } catch (IOException e) {
-                // silencioso, somente relatório interno
-            }
-
-            } catch (IOException ignored) {}
+            // Relatório interno
+            gerarRelatorioInterno();
+            gerarRelatorioAvancado();
 
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Erro ao gravar o arquivo.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Operação encerrada: " + e.getMessage(), "Jardim do Ébano", JOptionPane.WARNING_MESSAGE);
         }
+    }
+
+    // === FUNÇÕES UTILITÁRIAS ===
+
+    public static double calcularArea(double largura, double comprimento) {
+        return largura * comprimento;
+    }
+
+    public static double calcularMedia(List<Double> vetor) {
+        if (vetor.isEmpty()) return 0;
+        double soma = 0;
+        for (double v : vetor) soma += v;
+        return soma / vetor.size();
+    }
+
+    public static void exibirDadosCliente(String nome, String endereco, String telefone, double area, String tamanho, List<String> servicos, int desconto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nome: ").append(nome).append("\n");
+        sb.append("Endereço: ").append(endereco).append("\n");
+        sb.append("Telefone: ").append(telefone).append("\n");
+        sb.append("Área do Jardim: ").append(String.format("%.2f", area)).append(" m²\n");
+        sb.append("Classificação: ").append(tamanho).append("\n");
+        sb.append("Serviços contratados: ").append(String.join(", ", servicos)).append("\n");
+        sb.append("Desconto aplicado: ").append(desconto).append("%");
+        JOptionPane.showMessageDialog(null, sb.toString(), "Resumo do Cliente", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void gerarRelatorioInterno() {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("dadoscliente.txt"), "UTF-8"));
+            OutputStreamWriter relatorio = new OutputStreamWriter(new FileOutputStream("relatorio_jardins.txt", false), "UTF-8");
+
+            String linha;
+            int totalJardins = 0, grandes = 0, maiores100 = 0;
+            double soma = 0;
+
+            reader.readLine(); // pula cabeçalho
+            while ((linha = reader.readLine()) != null) {
+                String[] campos = linha.split(",");
+                if (campos.length >= 6) {
+                    try {
+                        double area = Double.parseDouble(campos[3].trim());
+                        String tamanho = campos[4].trim();
+                        soma += area;
+                        totalJardins++;
+                        if (tamanho.equalsIgnoreCase("Grande")) grandes++;
+                        if (area > 100) maiores100++;
+                    } catch (Exception ignored) {}
+                }
+            }
+            reader.close();
+
+            double media = (totalJardins > 0) ? soma / totalJardins : 0;
+
+            relatorio.write("RELATÓRIO INTERNO DOS JARDINS\n");
+            relatorio.write("-------------------------------\n");
+            relatorio.write("Total de Jardins: " + totalJardins + "\n");
+            relatorio.write("Média de Área: " + String.format("%.2f", media) + " m²\n");
+            relatorio.write("Jardins Grandes: " + grandes + "\n");
+            relatorio.write("Jardins com mais de 100 m²: " + maiores100 + "\n");
+            relatorio.close();
+
+        } catch (IOException ignored) {}
+    }
+
+    public static void gerarRelatorioAvancado() {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("dadoscliente.txt"), "UTF-8"));
+            List<Double> listaAreas = new ArrayList<>();
+            List<Integer> qtdeServicos = new ArrayList<>();
+
+            reader.readLine(); // pula cabeçalho
+            String linha;
+            while ((linha = reader.readLine()) != null) {
+                String[] campos = linha.split(",");
+                if (campos.length >= 6) {
+                    try {
+                        double area = Double.parseDouble(campos[3].trim());
+                        listaAreas.add(area);
+                        String servicosStr = campos[5];
+                        int qtde = servicosStr.split("\\|").length;
+                        qtdeServicos.add(qtde);
+                    } catch (Exception ignored) {}
+                }
+            }
+            reader.close();
+
+            // Moda
+            double moda = 0;
+            int maxFrequencia = 0;
+            for (double a : listaAreas) {
+                int freq = 0;
+                for (double b : listaAreas) {
+                    if (Double.compare(a, b) == 0) freq++;
+                }
+                if (freq > maxFrequencia) {
+                    moda = a;
+                    maxFrequencia = freq;
+                }
+            }
+
+            qtdeServicos.sort(Integer::compareTo);
+
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("relatorio_jardins.txt", true), "UTF-8");
+
+            writer.write("\nRELATÓRIO AVANÇADO - ÁREAS E SERVIÇOS\n");
+            writer.write("--------------------------------------\n");
+            writer.write("Áreas registradas:\n");
+            for (double a : listaAreas) {
+                writer.write(String.format("• %.2f m²\n", a));
+            }
+            writer.write("\nModa das Áreas: " + String.format("%.2f", moda) + " m²\n");
+            writer.write("\nServiços contratados por cliente (ordenado):\n");
+            for (int q : qtdeServicos) {
+                writer.write("• " + q + " serviço(s)\n");
+            }
+            writer.close();
+
+        } catch (IOException ignored) {}
     }
 }
