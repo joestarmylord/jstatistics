@@ -67,39 +67,35 @@ public class App {
                 int opcao = Integer.parseInt(JOptionPane.showInputDialog(null,
                         "Escolha um serviço:\n1. Administração\n2. Manutenção\n3. Criação de Jardins",
                         "Jardim do Ébano", JOptionPane.OK_OPTION));
-                        
                 String servicoSelecionado = "";
-                String descricaoServico = "";
+                String descricao = "";
 
                 switch (opcao) {
                     case 1:
                         servicoSelecionado = "Administração";
-                        descricaoServico = "Organização de cronogramas, controle de plantas e agendamentos.";
+                        descricao = "Organização de cronogramas, controle de plantas e agendamentos.";
                         break;
                     case 2:
                         servicoSelecionado = "Manutenção";
-                        descricaoServico = "Poda, irrigação e cuidados periódicos com o jardim.";
+                        descricao = "Poda, irrigação e cuidados periódicos com o jardim.";
                         break;
                     case 3:
                         servicoSelecionado = "Criação de Jardins";
-                        descricaoServico = "Projeto paisagístico completo, do planejamento à execução.";
+                        descricao = "Projeto paisagístico completo, do planejamento à execução.";
                         break;
                     default:
                         JOptionPane.showMessageDialog(null, "Opção inválida!", "Jardim do Ébano", JOptionPane.WARNING_MESSAGE);
                         continue;
                 }
-                
-                // Exibe a descrição após a escolha
+
                 JOptionPane.showMessageDialog(null,
-                        "Você escolheu: " + servicoSelecionado + "\nDescrição: " + descricaoServico,
+                        "Você escolheu: " + servicoSelecionado + "\nDescrição: " + descricao,
                         "Serviço Escolhido", JOptionPane.INFORMATION_MESSAGE);
-                
 
                 if (!servicos.contains(servicoSelecionado)) {
                     servicos.add(servicoSelecionado);
-                    JOptionPane.showMessageDialog(null, "Serviço adicionado: " + servicoSelecionado, "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Serviço já contratado.", "Jardim do Ébano", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Serviço já contratado.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
                 }
 
                 int resposta = JOptionPane.showConfirmDialog(null, "Deseja contratar mais um serviço?", "Jardim do Ébano", JOptionPane.YES_NO_OPTION);
@@ -109,38 +105,75 @@ public class App {
             int qtd = servicos.size();
             int desconto = (qtd >= 3) ? 20 : (qtd == 2) ? 10 : 0;
 
-            // Monta linha de dados
-            String dadosCliente = nome + ", " + endereco + ", " + telefone + ", " + area + ", " + classificacao + ", " + String.join(" | ", servicos) + ", " + desconto + "%\n";
-
-            // Cria arquivo com BOM se ainda não existir
             File arquivo = new File("dadoscliente.txt");
-            boolean arquivoExiste = arquivo.exists();
-
+            boolean novo = !arquivo.exists();
             FileOutputStream fos = new FileOutputStream(arquivo, true);
-            OutputStreamWriter writer;
 
-            if (!arquivoExiste) {
-                // Escreve BOM no início
-                fos.write(0xEF);
-                fos.write(0xBB);
-                fos.write(0xBF);
-                writer = new OutputStreamWriter(fos, "UTF-8");
-                writer.write("Nome, Endereço, Telefone, Área (m²), Tamanho, Serviços, Desconto (%)\n");
-            } else {
-                writer = new OutputStreamWriter(fos, "UTF-8");
+            if (novo) {
+                fos.write(0xEF); fos.write(0xBB); fos.write(0xBF); 
             }
 
-            writer.write(dadosCliente);
+            OutputStreamWriter writer = new OutputStreamWriter(fos, "UTF-8");
+
+            if (novo) {
+                writer.write("Nome, Endereço, Telefone, Área (m²), Tamanho, Serviços, Desconto (%)\n");
+            }
+
+            writer.write(nome + ", " + endereco + ", " + telefone + ", " + area + ", " + classificacao + ", " + String.join(" | ", servicos) + ", " + desconto + "%\n");
             writer.close();
 
             JOptionPane.showMessageDialog(null,
                     "Dados salvos com sucesso!\nServiços contratados: " + qtd + "\nDesconto aplicado: " + desconto + "%",
                     "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
 
+            try {
+                File origem = new File("dadoscliente.txt");
+                File destino = new File("relatorio_jardins.txt");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(origem), "UTF-8"));
+                OutputStreamWriter relatorio = new OutputStreamWriter(new FileOutputStream(destino, false), "UTF-8");
+
+                String linha;
+                int totalJardins = 0;
+                int grandes = 0;
+                int maiores100 = 0;
+                double soma = 0;
+
+                reader.readLine();
+
+                while ((linha = reader.readLine()) != null) {
+                    String[] campos = linha.split(",");
+                    if (campos.length >= 6) {
+                        try {
+                            double areaLida = Double.parseDouble(campos[3].trim());
+                            String tamanho = campos[4].trim();
+                            soma += areaLida;
+                            totalJardins++;
+                            if (tamanho.equalsIgnoreCase("Grande")) grandes++;
+                            if (areaLida > 100) maiores100++;
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                reader.close();
+
+                double media = (totalJardins > 0) ? soma / totalJardins : 0;
+
+                relatorio.write("RELATÓRIO INTERNO DOS JARDINS\n");
+                relatorio.write("-------------------------------\n");
+                relatorio.write("Total de Jardins: " + totalJardins + "\n");
+                relatorio.write("Média de Área: " + String.format("%.2f", media) + " m²\n");
+                relatorio.write("Jardins Grandes: " + grandes + "\n");
+                relatorio.write("Jardins com mais de 100 m²: " + maiores100 + "\n");
+
+                relatorio.close();
+
+            } catch (IOException ignored) {}
+
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Erro ao gravar o arquivo.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Encerrado: " + e.getMessage(), "Jardim do Ébano", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Operação encerrada: " + e.getMessage(), "Jardim do Ébano", JOptionPane.WARNING_MESSAGE);
         }
     }
 }
