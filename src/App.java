@@ -89,7 +89,6 @@ public class App {
                         continue;
                 }
                 
-                // Exibe a descrição após a escolha
                 JOptionPane.showMessageDialog(null,
                         "Você escolheu: " + servicoSelecionado + "\nDescrição: " + descricaoServico,
                         "Serviço Escolhido", JOptionPane.INFORMATION_MESSAGE);
@@ -108,11 +107,7 @@ public class App {
 
             int qtd = servicos.size();
             int desconto = (qtd >= 3) ? 20 : (qtd == 2) ? 10 : 0;
-
-            // Monta linha de dados
             String dadosCliente = nome + ", " + endereco + ", " + telefone + ", " + area + ", " + classificacao + ", " + String.join(" | ", servicos) + ", " + desconto + "%\n";
-
-            // Cria arquivo com BOM se ainda não existir
             File arquivo = new File("dadoscliente.txt");
             boolean arquivoExiste = arquivo.exists();
 
@@ -120,7 +115,6 @@ public class App {
             OutputStreamWriter writer;
 
             if (!arquivoExiste) {
-                // Escreve BOM no início
                 fos.write(0xEF);
                 fos.write(0xBB);
                 fos.write(0xBF);
