@@ -7,11 +7,11 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            JOptionPane.showMessageDialog(null, "Alô, Jardim!", "Jardim do Ébano", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(null, "Alô, Jardim!", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
 
             String nome;
             while (true) {
-                nome = JOptionPane.showInputDialog(null, "Nome completo:", "Jardim do Ébano", JOptionPane.OK_OPTION);
+                nome = JOptionPane.showInputDialog(null, "Nome completo:", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 if (nome == null) throw new Exception("Entrada cancelada.");
                 if (nome.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Erro: o nome não pode estar vazio.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
@@ -20,7 +20,7 @@ public class App {
 
             String endereco;
             while (true) {
-                endereco = JOptionPane.showInputDialog(null, "Endereço:", "Jardim do Ébano", JOptionPane.OK_OPTION);
+                endereco = JOptionPane.showInputDialog(null, "Endereço:", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 if (endereco == null) throw new Exception("Entrada cancelada.");
                 if (endereco.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Erro: o endereço não pode estar vazio.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
@@ -29,7 +29,7 @@ public class App {
 
             String telefone;
             while (true) {
-                telefone = JOptionPane.showInputDialog(null, "Telefone (11 dígitos):", "Jardim do Ébano", JOptionPane.OK_OPTION);
+                telefone = JOptionPane.showInputDialog(null, "Telefone (11 dígitos):", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 if (telefone == null) throw new Exception("Entrada cancelada.");
                 if (!telefone.matches("\\d{11}")) {
                     JOptionPane.showMessageDialog(null, "Erro: o telefone deve conter 11 números.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
@@ -39,7 +39,7 @@ public class App {
             double largura = 0, comprimento = 0;
             while (true) {
                 try {
-                    largura = Double.parseDouble(JOptionPane.showInputDialog(null, "Largura do jardim (m):", "Jardim do Ébano", JOptionPane.OK_OPTION));
+                    largura = Double.parseDouble(JOptionPane.showInputDialog(null, "Largura do jardim (m):", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE));
                     if (largura <= 0) throw new NumberFormatException();
                     break;
                 } catch (Exception e) {
@@ -49,7 +49,7 @@ public class App {
 
             while (true) {
                 try {
-                    comprimento = Double.parseDouble(JOptionPane.showInputDialog(null, "Comprimento do jardim (m):", "Jardim do Ébano", JOptionPane.OK_OPTION));
+                    comprimento = Double.parseDouble(JOptionPane.showInputDialog(null, "Comprimento do jardim (m):", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE));
                     if (comprimento <= 0) throw new NumberFormatException();
                     break;
                 } catch (Exception e) {
@@ -59,14 +59,13 @@ public class App {
 
             double area = calcularArea(largura, comprimento);
             String classificacao = (area >= 50) ? "Grande" : "Pequeno";
-
             List<String> servicos = new ArrayList<>();
             boolean continuar = true;
 
             while (continuar) {
                 int opcao = Integer.parseInt(JOptionPane.showInputDialog(null,
                         "Escolha um serviço:\n1. Administração\n2. Manutenção\n3. Criação de Jardins",
-                        "Jardim do Ébano", JOptionPane.OK_OPTION));
+                        "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE));
                 String servicoSelecionado = "";
                 String descricao = "";
 
@@ -104,9 +103,7 @@ public class App {
 
             int qtd = servicos.size();
             int desconto = (qtd >= 3) ? 20 : (qtd == 2) ? 10 : 0;
-
             exibirDadosCliente(nome, endereco, telefone, area, classificacao, servicos, desconto);
-
             File arquivo = new File("dadoscliente.txt");
             boolean novo = !arquivo.exists();
             FileOutputStream fos = new FileOutputStream(arquivo, true);
@@ -119,7 +116,6 @@ public class App {
             }
             writer.write(nome + ", " + endereco + ", " + telefone + ", " + area + ", " + classificacao + ", " + String.join(" | ", servicos) + ", " + desconto + "%\n");
             writer.close();
-
             gerarRelatorioInterno();
             gerarRelatorioAvancado();
 
@@ -158,11 +154,9 @@ public class App {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("dadoscliente.txt"), "UTF-8"));
             OutputStreamWriter relatorio = new OutputStreamWriter(new FileOutputStream("relatorio_jardins.txt", false), "UTF-8");
-
             String linha;
             int totalJardins = 0, grandes = 0, maiores100 = 0;
             double soma = 0;
-
             reader.readLine(); 
             while ((linha = reader.readLine()) != null) {
                 String[] campos = linha.split(",");
@@ -178,9 +172,7 @@ public class App {
                 }
             }
             reader.close();
-
             double media = (totalJardins > 0) ? soma / totalJardins : 0;
-
             relatorio.write("RELATÓRIO INTERNO DOS JARDINS\n");
             relatorio.write("-------------------------------\n");
             relatorio.write("Total de Jardins: " + totalJardins + "\n");
@@ -197,7 +189,6 @@ public class App {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("dadoscliente.txt"), "UTF-8"));
             List<Double> listaAreas = new ArrayList<>();
             List<Integer> qtdeServicos = new ArrayList<>();
-
             reader.readLine(); 
             String linha;
             while ((linha = reader.readLine()) != null) {
@@ -213,7 +204,6 @@ public class App {
                 }
             }
             reader.close();
-
             double moda = 0;
             int maxFrequencia = 0;
             for (double a : listaAreas) {
@@ -228,9 +218,7 @@ public class App {
             }
 
             qtdeServicos.sort(Integer::compareTo);
-
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("relatorio_jardins.txt", true), "UTF-8");
-
             writer.write("\nRELATÓRIO AVANÇADO - ÁREAS E SERVIÇOS\n");
             writer.write("--------------------------------------\n");
             writer.write("Áreas registradas:\n");
