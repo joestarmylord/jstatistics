@@ -7,11 +7,11 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            JOptionPane.showMessageDialog(null, "Alô, Jardim!", "Jardim do Ébano", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(null, "Alô, Jardim!", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
 
             String nome;
             while (true) {
-                nome = JOptionPane.showInputDialog(null, "Nome completo:", "Jardim do Ébano", JOptionPane.OK_OPTION);
+                nome = JOptionPane.showInputDialog(null, "Nome completo:", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 if (nome == null) throw new Exception("Entrada cancelada.");
                 if (nome.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Erro: o nome não pode estar vazio.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
@@ -20,7 +20,7 @@ public class App {
 
             String endereco;
             while (true) {
-                endereco = JOptionPane.showInputDialog(null, "Endereço:", "Jardim do Ébano", JOptionPane.OK_OPTION);
+                endereco = JOptionPane.showInputDialog(null, "Endereço:", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 if (endereco == null) throw new Exception("Entrada cancelada.");
                 if (endereco.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Erro: o endereço não pode estar vazio.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
@@ -29,7 +29,7 @@ public class App {
 
             String telefone;
             while (true) {
-                telefone = JOptionPane.showInputDialog(null, "Telefone (11 dígitos):", "Jardim do Ébano", JOptionPane.OK_OPTION);
+                telefone = JOptionPane.showInputDialog(null, "Telefone (11 dígitos):", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE);
                 if (telefone == null) throw new Exception("Entrada cancelada.");
                 if (!telefone.matches("\\d{11}")) {
                     JOptionPane.showMessageDialog(null, "Erro: o telefone deve conter 11 números.", "Jardim do Ébano", JOptionPane.ERROR_MESSAGE);
@@ -39,7 +39,7 @@ public class App {
             double largura = 0, comprimento = 0;
             while (true) {
                 try {
-                    largura = Double.parseDouble(JOptionPane.showInputDialog(null, "Largura do jardim (m):", "Jardim do Ébano", JOptionPane.OK_OPTION));
+                    largura = Double.parseDouble(JOptionPane.showInputDialog(null, "Largura do jardim (m):", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE));
                     if (largura <= 0) throw new NumberFormatException();
                     break;
                 } catch (Exception e) {
@@ -49,7 +49,7 @@ public class App {
 
             while (true) {
                 try {
-                    comprimento = Double.parseDouble(JOptionPane.showInputDialog(null, "Comprimento do jardim (m):", "Jardim do Ébano", JOptionPane.OK_OPTION));
+                    comprimento = Double.parseDouble(JOptionPane.showInputDialog(null, "Comprimento do jardim (m):", "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE));
                     if (comprimento <= 0) throw new NumberFormatException();
                     break;
                 } catch (Exception e) {
@@ -59,14 +59,13 @@ public class App {
 
             double area = largura * comprimento;
             String classificacao = (area >= 50) ? "Grande" : "Pequeno";
-
             List<String> servicos = new ArrayList<>();
             boolean continuar = true;
 
             while (continuar) {
                 int opcao = Integer.parseInt(JOptionPane.showInputDialog(null,
                         "Escolha um serviço:\n1. Administração\n2. Manutenção\n3. Criação de Jardins",
-                        "Jardim do Ébano", JOptionPane.OK_OPTION));
+                        "Jardim do Ébano", JOptionPane.INFORMATION_MESSAGE));
                         
                 String servicoSelecionado = "";
                 String descricaoServico = "";
